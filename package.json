@@ -1,5 +1,5 @@
 {
-  "name": "pcaptest",
+  "name": "test",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pcap": "^2.0.1"
+    "pcap": "git://github.com/mranney/node_pcap"
   }
 }

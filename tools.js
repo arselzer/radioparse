@@ -13,7 +13,7 @@ module.exports.flags_to_array = function(n, size) {
 module.exports.read_mac = function(buffer, pos) {
   var bytes = []
   for (var i = 0; i < 6; i++) {
-    bytes.push(buffer.readUInt8(pos + i * 8))
+    bytes.push(buffer.readUInt8(pos + i))
   }
   return bytes
 }

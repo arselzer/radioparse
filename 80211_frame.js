@@ -2,6 +2,7 @@
 /* 802.11 frame parser */
 
 var tools = require("./tools")
+var parse_tags = require("./80211_tags")
 var read_mac = tools.read_mac
 var flags_to_array = tools.flags_to_array
 
@@ -10,24 +11,6 @@ function merge(obj1, obj2) {
     if (!obj1.hasOwnProperty(key))
       obj1[key] = obj2[key]
   })
-}
-
-function parse_tags(packet) {
-  var tags = []
-  var pos = 0
-
-  while (pos < packet.length) {
-    var tagNum = packet.readUInt8(pos)
-    var tagLen = packet.readUInt8(pos + 1)
-
-    pos += tagLen + 2
-    tags.push({
-      type: tagNum,
-      content: packet.slice(pos + 1, pos + tagLen + 1)
-    })
-  }
-
-  return tags
 }
 
 function beacon(packet) {

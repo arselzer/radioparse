@@ -1,15 +1,8 @@
-var pcap = require("pcap")
-var radiotap = require("./radiotap.js")
+var radiotap = require("./radiotap")
+var frame = require("./80211_frame")
+var tags = require("./80211_tags")
 
-var session = pcap.createSession("mon0")
-
-session.on("packet", function(raw) {
-  var packet = radiotap.parse(radiotap.slice_packet(raw))
-
-  if (packet.frame) {
-    if (packet.frame.type === 0 && packet.frame.subtype === 4) 
-      console.log(packet)
-  }
-
-  //console.log(packet)
-})
+module.exports = {
+  slice_packet: radiotap.slice_packet,
+  parse: radiotap.parse
+}

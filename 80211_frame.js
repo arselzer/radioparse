@@ -13,6 +13,14 @@ function merge(obj1, obj2) {
   })
 }
 
+function data_frame(packet) {
+  var frame = {}
+
+  frame.ccmp_params = packet.slice(24, 32)
+
+  return frame
+}
+
 function beacon(packet) {
     var pos = 24 // skip frame control, addresses
     var frame = {}
@@ -141,7 +149,8 @@ module.exports = {
     }
     // Data Frame
     if (frame.type === 2) {
-      
+      if (frame.subtype === 0)
+        merge(frame, data_frame(packet))
     }
     
     return frame

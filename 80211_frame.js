@@ -2,7 +2,7 @@
 /* 802.11 frame parser */
 
 var tools = require("./tools")
-var parse_tags = require("./80211_tags")
+var parse_tags = require("./80211_tags").parse_tags
 var read_mac = tools.read_mac
 var flags_to_array = tools.flags_to_array
 
@@ -33,11 +33,27 @@ function beacon(packet) {
 }
 
 function probe_request(packet) {
-  return {}
+  return {
+    tags: parse_tags(24, packet.length)
+  }
 }
 
 function probe_response(packet) {
-  return {}
+  var pos = 24
+  var frame = {}
+
+    frame.timestamp = packet.slice(pos, pos + 8)
+    pos += 8
+
+    frame.beacon_interval = packet.readUInt16BE(pos)
+    pos += 2
+
+    frame.capabilities = flags_to_array(packet.readUInt16BE(pos), 16)
+    pos += 2
+
+    frame.tags = parse_tags(packet.slice(pos, packet.length - 4))
+
+    return frame
 }
 
 module.exports = {
@@ -56,6 +72,7 @@ module.exports = {
     frame.version = type_subtype & 3 // 0b00000011
     frame.fc_flags = flags_to_array(packet.readUInt8(1), 8)
 
+    // currently all packets use version 0
     if (frame.version !== 0) {
       return null
     }
@@ -114,7 +131,7 @@ module.exports = {
       if (frame.subtype === 4) // 0100
         merge(frame, probe_request(packet))
       if (frame.subtype === 5) // 0101
-        merge(frame, probe_request(packet))
+        merge(frame, probe_response(packet))
       if (frame.subtype === 8) // 1000
         merge(frame, beacon(packet))
     }

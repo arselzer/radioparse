@@ -71,15 +71,15 @@ function parse_tag(tag, type) {
   }
 }
 
-function parse_tags(packet) {
+function parse_tags(buffer) {
   var tags = []
   var pos = 0
 
-  while (pos < packet.length) {
-    var tagType = packet.readUInt8(pos)
-    var tagLen = packet.readUInt8(pos + 1)
+  while (pos < buffer.length) {
+    var tagType = buffer.readUInt8(pos)
+    var tagLen = buffer.readUInt8(pos + 1)
 
-    var content = packet.slice(pos + 1, pos + tagLen + 1)
+    var content = buffer.slice(pos + 1, pos + tagLen + 1)
     var tag = parse_tag(content, tagType)
     tag.type_number = tagType
     tag.content = content
@@ -91,4 +91,7 @@ function parse_tags(packet) {
   return tags
 }
 
-module.exports = parse_tags
+module.exports = {
+  parse_tags: parse_tags,
+  parse_tag: parse_tag
+}

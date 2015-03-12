@@ -7,7 +7,7 @@ session.on("packet", function(raw) {
   var packet = radiotap.parse(radiotap.slice_packet(raw))
 
   if (packet.frame) {
-    if (packet.frame.type === 0 && packet.frame.subtype === 5) 
+    if (packet.frame.type === 0 && packet.frame.subtype === 4) 
       console.log(packet)
   }
 

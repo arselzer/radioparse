@@ -34,7 +34,7 @@ function beacon(packet) {
 
 function probe_request(packet) {
   return {
-    tags: parse_tags(24, packet.length)
+    tags: parse_tags(packet.slice(24, packet.length))
   }
 }
 

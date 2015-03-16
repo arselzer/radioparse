@@ -72,18 +72,21 @@ function parse_tag(tag, type) {
 }
 
 function parse_tags(buffer) {
+  console.log(buffer.length, buffer.toString())
   var tags = []
   var pos = 0
 
   while (pos < buffer.length) {
-    var tagType = buffer.readUInt8(pos)
-    var tagLen = buffer.readUInt8(pos + 1)
+    if (buffer.length - pos >= 2) {
+      var tagType = buffer.readUInt8(pos)
+      var tagLen = buffer.readUInt8(pos + 1)
 
-    var content = buffer.slice(pos + 1, pos + tagLen + 1)
-    var tag = parse_tag(content, tagType)
-    tag.type_number = tagType
-    tag.content = content
-    tags.push(tag)
+      var content = buffer.slice(pos + 1, pos + tagLen + 1)
+      var tag = parse_tag(content, tagType)
+      tag.type_number = tagType
+      tag.content = content
+      tags.push(tag)
+    }
 
     pos += tagLen + 2
   }

@@ -25,67 +25,139 @@ var rt_types = {
 	"EXT": 31
 }
 
-function slice_packet(raw) {
-  var len = raw.header.readUInt32LE(12)
-  return raw.buf.slice(0, len)
-}
-
 function parse(buf) {
   var header = {}
   /* Radiotap Header */
-
   var pos = 0
+
   header.revision = buf.readUInt8(pos)
   pos += 1
   
   header.pad = buf.readUInt8(pos)
   pos += 1
   
-  header.length = buf.readUInt16BE(pos)
+  header.length = buf.readUInt16LE(pos)
   pos += 2
   
-  var flags1 = buf.readUInt32BE(pos)
-  var flags2 = buf.readUInt32BE(pos + 4)
-  var present_flags = flags_to_array(flags1, 32).concat(flags_to_array(flags2, 32))
-  header.present_flags = present_flags
-  pos += 8 + 4 // space
+  var flags = flags_to_array(buf.readUInt32LE(pos), 32)
+  pos += 4
 
-  // mac timestamp
-  header.mac_timestamp = buf.slice(pos, pos + 8)
-  pos += 8
+  var extraFlags = flags
+  while (extraFlags[rt_types.EXT]) {
+    pos += 4
+    extraFlags = flags_to_array(buf.readUInt32LE(pos), 32)
+  }
+
+  header.present_flags = flags
+
+  /* Variable part, depending on present flags */
+
+  if (flags[rt_types.TSFT]) {
+    pos += 8
+    header.tsft = buf.slice(pos, pos + 8)
+    pos += 8
+  }
+
+  if (flags[rt_types.FLAGS]) {
+    header.flags = flags_to_array(buf.readUInt8(pos), 8)
+    pos += 1
+  }
+
+  if (flags[rt_types.RATE]) {
+    header.rate = buf.readUInt8(pos)
+    pos += 1
+  }
   
-  header.flags = flags_to_array(buf.readUInt8(pos), 8)
-  pos += 1
+  if (flags[rt_types.CHANNEL]) {
+    header.channel = buf.readUInt16LE(pos)
+    pos += 2
+    header.channel_type = flags_to_array(buf.readUInt16LE(pos), 16)
+    pos += 2
+  }
+
+  if (flags[rt_types.FHSS]) {
+    header.fhss = {
+      hop_set: buf.readUInt8(pos),
+      hop_pattern: buf.readUInt8(pos + 1)
+    }
+    pos += 2 
+  }
+
+  if (flags[rt_types.DBM_ANTSIGNAL]) {
+    header.dbm_signal = buf.readInt8(pos)
+    pos += 1
+  }
   
-  header.data_rate = buf.readUInt8(pos)
-  pos += 1
+  if (flags[rt_types.DBM_ANTNOISE]) {
+    header.dbm_noise = buf.readInt8(pos)
+    pos += 1
+  }
+
+  if (flags[rt_types.LOCK_QUALITY]) {
+    header.lock_quality = buf.readUInt16LE(pos)
+    pos += 2
+  }
+
+  if (flags[rt_types.TX_ATTENUATION]) {
+    header.tx_attenuation = buf.readUInt8(pos)
+    pos += 1
+  }
+
+	if (flags[rt_types.DB_TX_ATTENUATION]) {
+    header.db_tx_attenuation = buf.readUInt16LE(pos)
+    pos += 2
+  }
+	
+  if (flags[rt_types.DBM_TX_POWER]) {
+    header.dbm_tx_power = buf.readUInt8(pos)
+    pos += 1
+  }
+
+	if (flags[rt_types.ANTENNA]) {
+    header.antenna = buf.readUInt8(pos)
+    pos += 1
+  }
+
+	if (flags[rt_types.DB_ANTSIGNAL]) {
+    header.db_antenna_signal = buf.readUInt8(pos)
+    pos += 1
+  }
+
+	if (flags[rt_types.DB_ANTNOISE]) {
+    header.db_antenna_noise = buf.readUInt8(pos)
+    pos += 1
+  }
+
+	if (flags[rt_types.RX_FLAGS]) {
+    pos += 1
+    header.rx_flags = buf.readUInt16LE(pos)
+    pos += 2
+  }
+
+	if (flags[rt_types.TX_FLAGS]) {
+    pos += 1
+    header.tx_flags = buf.readUInt16LE(pos)
+    pos += 2
+  }
+
+	if (flags[rt_types.RTS_RETRIES]) {
+    header.rts_retries = buf.readUInt8(pos)
+    pos += 1
+  }
   
-  header.frequency = buf.readUInt16BE(pos)
-  pos += 2
-
-  header.channel_type = flags_to_array(buf.readUInt16BE(pos), 16)
-  pos += 2
-
-  header.ssi_signal = buf.readInt8(pos)
-  pos += 1 + 1
-
-  header.rx_flags = flags_to_array(buf.readUInt16BE(pos), 16)
-  pos += 2
-
-  // SSI signal again
-  pos += 1
-
-  header.antenna = buf.readUInt8(pos)
-  pos += 1
+	if (flags[rt_types.DATA_RETRIES]) {
+    header.data_retries = buf.readUInt8(pos)
+    pos += 1
+  }
 
   /* 802.11 header */
 
-  header.frame = frame.parse(buf.slice(pos, buf.length))
+  // if the radiotap parser screws up, the 802.11 frame is still accessible
+  header.frame = frame.parse(buf.slice(header.length, buf.length)) 
 
   return header
 }
 
 module.exports = {
-  parse: parse,
-  slice_packet: slice_packet
+  parse: parse
 }

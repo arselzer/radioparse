@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "pcap": "^2.0.1"
+    "pcap": "git://github.com/mranney/node_pcap"
   }
 }

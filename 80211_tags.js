@@ -2,7 +2,8 @@ function parse_tag(tag, type) {
   // SSID
   if (type === 0) {
     return {
-      type: "ssid"
+      type: "ssid",
+      ssid: new String(tag.slice(0, tag.length))
     }
   }
   // rates
@@ -72,7 +73,6 @@ function parse_tag(tag, type) {
 }
 
 function parse_tags(buffer) {
-  console.log(buffer.length, buffer.toString())
   var tags = []
   var pos = 0
 
@@ -81,7 +81,7 @@ function parse_tags(buffer) {
       var tagType = buffer.readUInt8(pos)
       var tagLen = buffer.readUInt8(pos + 1)
 
-      var content = buffer.slice(pos + 1, pos + tagLen + 1)
+      var content = buffer.slice(pos + 2, pos + tagLen + 2)
       var tag = parse_tag(content, tagType)
       tag.type_number = tagType
       tag.content = content

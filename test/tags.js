@@ -7,11 +7,9 @@ session.on("packet", function(raw) {
   var packet = radioparse.parse(radioparse.slice_packet(raw))
 
   if (packet.frame) {
-    if (packet.frame.type === 0 && packet.frame.subtype === 8)  {
+    if (packet.frame.tags) {
       packet.frame.tags.forEach(function(tag) {
-        if (tag.type === "ssid") {
-          console.log(tag)
-        }
+        console.log(tag)
       })
     }
   }

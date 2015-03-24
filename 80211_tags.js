@@ -141,8 +141,16 @@ function parse_tag(tag, type) {
   }
   // internetworking
   if (type === 107) {
+    var info = tag.readUInt8(0)
+
     return {
-      type: "internetworking"
+      type: "interworking",
+      access_network_type: info & 0x0f,
+      internet: new Boolean(info & (1 << 4)),
+      asra: new Boolean(info & (1 << 3)),
+      esr: new Boolean(info & (1 << 2)),
+      uesa: new Boolean(info & 1),
+      hessid: tag.slice(1, 7)
     }
   }
   // extended capabilities

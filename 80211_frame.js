@@ -22,22 +22,22 @@ function data_frame(packet) {
 }
 
 function beacon(packet) {
-    var pos = 24 // skip frame control, addresses
-    var frame = {}
+  var pos = 24 // skip frame control, addresses
+  var frame = {}
 
-    // fixed parameters (12 bytes)
-    frame.timestamp = packet.slice(pos, pos + 8)
-    pos += 8
+  // fixed parameters (12 bytes)
+  frame.timestamp = packet.slice(pos, pos + 8)
+  pos += 8
 
-    frame.beacon_interval = packet.readUInt16BE(pos)
-    pos += 2
+  frame.beacon_interval = packet.readUInt16BE(pos)
+  pos += 2
 
-    frame.capabilities = flags_to_array(packet.readUInt16BE(pos), 16)
-    pos += 2
+  frame.capabilities = flags_to_array(packet.readUInt16BE(pos), 16)
+  pos += 2
 
-    frame.tags = parse_tags(packet.slice(pos, packet.length - 4))
+  frame.tags = parse_tags(packet.slice(pos, packet.length - 4))
 
-    return frame
+  return frame
 }
 
 function probe_request(packet) {
@@ -50,18 +50,29 @@ function probe_response(packet) {
   var pos = 24
   var frame = {}
 
-    frame.timestamp = packet.slice(pos, pos + 8)
-    pos += 8
+  frame.timestamp = packet.slice(pos, pos + 8)
+  pos += 8
 
-    frame.beacon_interval = packet.readUInt16BE(pos)
-    pos += 2
+  frame.beacon_interval = packet.readUInt16BE(pos)
+  pos += 2
 
-    frame.capabilities = flags_to_array(packet.readUInt16BE(pos), 16)
-    pos += 2
+  frame.capabilities = flags_to_array(packet.readUInt16BE(pos), 16)
+  pos += 2
 
-    frame.tags = parse_tags(packet.slice(pos, packet.length - 4))
+  frame.tags = parse_tags(packet.slice(pos, packet.length - 4))
 
-    return frame
+  return frame
+}
+
+function qos_data(packet) {
+  var pos = 24
+  var frame = {}
+
+  var qos_control = packet.readUInt16BE(pos)
+
+  frame.qos_control = {
+    
+  }
 }
 
 module.exports = {
@@ -151,6 +162,9 @@ module.exports = {
     if (frame.type === 2) {
       if (frame.subtype === 0)
         merge(frame, data_frame(packet))
+      if (frame.subtype === 8) {
+        merge(frame, qos_data(packet))
+      }
     }
     
     return frame

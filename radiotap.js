@@ -69,8 +69,9 @@ function parse(buf) {
   }
   
   if (flags[rt_types.CHANNEL]) {
-    header.channel = buf.readUInt16LE(pos)
+
     pos += 2
+    header.channel = buf.readUInt16LE(pos)
     header.channel_type = flags_to_array(buf.readUInt16LE(pos), 16)
     pos += 2
   }

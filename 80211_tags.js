@@ -1,6 +1,13 @@
 var flags_to_array = require("./tools").flags_to_array
 
 function parse_vendor_specific(tag) {
+  if (tag.length < 4) {
+    return {
+      oui: null,
+      type: null
+    };
+  }
+  
   var data = {
     oui: tag.slice(0, 3),
     type: tag.readUInt8(3),

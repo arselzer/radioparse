@@ -109,12 +109,13 @@ function parse_tag(tag, type) {
   }
   // traffic indication map
   if (type === 5) {
+    console.log(tag)
     return {
       type: "traffic_indication_map",
       dtim_count: tag.readUInt8(0),
       dtim_period: tag.readUInt8(1),
-      bitmap_control: tag.readUInt8(2),
-      partial_virtual_bitmap: tag.readUInt8(3)
+      bitmap_control: tag.length > 2 ? tag.readUInt8(2) : null,
+      partial_virtual_bitmap: tag.length > 3 ? tag.readUInt8(3) : null
     }
   }
   // ERP information

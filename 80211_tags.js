@@ -109,7 +109,6 @@ function parse_tag(tag, type) {
   }
   // traffic indication map
   if (type === 5) {
-    //console.log(tag)
     return {
       type: "traffic_indication_map",
       dtim_count: tag.length > 0 ? tag.readUInt8(0) : null,
@@ -149,6 +148,12 @@ function parse_tag(tag, type) {
   }
   // internetworking
   if (type === 107) {
+    if (tag.length == 0){
+      return {
+        type: "interworking"
+      };
+    }
+    
     var info = tag.readUInt8(0)
 
     return {

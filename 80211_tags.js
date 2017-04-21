@@ -104,16 +104,15 @@ function parse_tag(tag, type) {
   if (type === 3) {
     return {
       type: "channel",
-      channel: tag.readUInt8(0)
+      channel: tag.length > 0 ? tag.readUInt8(0) : null
     }
   }
   // traffic indication map
   if (type === 5) {
-    console.log(tag)
     return {
       type: "traffic_indication_map",
-      dtim_count: tag.readUInt8(0),
-      dtim_period: tag.readUInt8(1),
+      dtim_count: tag.length > 0 ? tag.readUInt8(0) : null,
+      dtim_period: tag.length > 1 ? tag.readUInt8(1) : null,
       bitmap_control: tag.length > 2 ? tag.readUInt8(2) : null,
       partial_virtual_bitmap: tag.length > 3 ? tag.readUInt8(3) : null
     }
@@ -149,6 +148,12 @@ function parse_tag(tag, type) {
   }
   // internetworking
   if (type === 107) {
+    if (tag.length == 0){
+      return {
+        type: "interworking"
+      };
+    }
+    
     var info = tag.readUInt8(0)
 
     return {
